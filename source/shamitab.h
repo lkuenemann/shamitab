@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #define DEBUG 1
 
@@ -15,6 +16,6 @@ const symbol eof = 0xffffffff;
 
 int main(int argc, char* argv[]);
 
-int decode();
-//int decode(symbol);
+//int decode();
+int decode(symbol sym, char* ascii_sym);
 

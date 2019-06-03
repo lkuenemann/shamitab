@@ -17,6 +17,7 @@ int main(int argc, char* argv[])
 	FILE* file = NULL;
 	int err;	// Error return variable
 	symbol buffer[1];
+	char* ascii_sym = NULL;
 
 	// Check if right number of arguments recieved
 	if(argc != nargs+1)
@@ -42,26 +43,77 @@ int main(int argc, char* argv[])
 	{
 		// Decode symbol
 		if(DEBUG) printf("Read symbol: %08x\n", buffer[0]);
-		err = decode();
+		err = decode(buffer[0], ascii_sym);
 		if(err)
 		{
 			printf("Error: cannot decode symbol.\n");
 			return 1;
 		}
-		if(DEBUG) printf("Symbol decoded!\n");
+		if(DEBUG) printf("Symbol decoded!\n\n");
 		// Read next symbol
 		fread(buffer, symbol_size, 1, file);
 	}
 
 	// Cleaning up
+	if(ascii_sym != NULL) free(ascii_sym);
 	fclose(file);
 
  	return 0;
 }
 
 
-int decode()
-//int decode(symbol sym, char* ascii)
+//int decode()
+int decode(symbol sym, char* ascii_sym)
 {
+	int column_size = 7*sizeof(char);
+
+	// Special symbols
+	if( ( sym & 0x00020820 ) == 0 )
+	{
+		if(DEBUG) printf("I am special!\n");
+		// We only need 3 most significant bits from the symbol
+		// Extracting them by shifting 29 bits to the right
+		char a = sym >> 29;
+		// Then switching to find out which special symbol it is
+		switch(a)
+		{
+			// Silence
+			case 0:
+				if(DEBUG) printf(">>Silence\n");
+				ascii_sym = malloc(column_size+1);
+				ascii_sym = " - x - ";
+				if(DEBUG) printf("%s\n", ascii_sym);
+				break;
+			// Bar
+			case 1:
+				if(DEBUG) printf(">>Bar\n");
+				ascii_sym = malloc(column_size+1);
+				ascii_sym = " ||||| ";
+				if(DEBUG) printf("%s\n", ascii_sym);
+				break;
+			// Double bar
+			case 2:
+				if(DEBUG) printf(">>Double bar\n");
+				break;
+			// Left repeat sign
+			case 3:
+				if(DEBUG) printf(">>Left repeat sign\n");
+				break;
+			// Bar
+			case 4:
+				if(DEBUG) printf(">>Right repeat sign\n");
+				break;
+			// Default: undefined
+			default:
+				printf("Error: Undefined symbol.\n");
+				return 1;
+		}
+	}	
+	// General case
+	else
+	{
+		if(DEBUG) printf("I am normal.\n");
+	}
+
  	return 0;
 }
