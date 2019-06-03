@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
 	FILE* file = NULL;
 	int err;	// Error return variable
 	symbol buffer[1];
-	char* ascii_sym = NULL;
+	char ascii_sym[22];
 
 	// Check if right number of arguments recieved
 	if(argc != nargs+1)
@@ -55,7 +55,6 @@ int main(int argc, char* argv[])
 	}
 
 	// Cleaning up
-	if(ascii_sym != NULL) free(ascii_sym);
 	fclose(file);
 
  	return 0;
@@ -65,8 +64,6 @@ int main(int argc, char* argv[])
 //int decode()
 int decode(symbol sym, char* ascii_sym)
 {
-	int column_size = 7*sizeof(char);
-
 	// Special symbols
 	if( ( sym & 0x00020820 ) == 0 )
 	{
@@ -80,28 +77,29 @@ int decode(symbol sym, char* ascii_sym)
 			// Silence
 			case 0:
 				if(DEBUG) printf(">>Silence\n");
-				ascii_sym = malloc(column_size+1);
 				ascii_sym = " - x - ";
 				if(DEBUG) printf("%s\n", ascii_sym);
 				break;
 			// Bar
 			case 1:
 				if(DEBUG) printf(">>Bar\n");
-				ascii_sym = malloc(column_size+1);
 				ascii_sym = " ||||| ";
 				if(DEBUG) printf("%s\n", ascii_sym);
 				break;
 			// Double bar
 			case 2:
 				if(DEBUG) printf(">>Double bar\n");
+				ascii_sym = " |||||  ||||| ";
 				break;
 			// Left repeat sign
 			case 3:
 				if(DEBUG) printf(">>Left repeat sign\n");
+				ascii_sym = " |||||  |||||  -.-.- ";
 				break;
 			// Bar
 			case 4:
 				if(DEBUG) printf(">>Right repeat sign\n");
+				ascii_sym = " -.-.-  |||||  ||||| ";
 				break;
 			// Default: undefined
 			default:
