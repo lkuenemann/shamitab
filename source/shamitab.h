@@ -21,6 +21,5 @@ typedef struct CHARLIST {
 
 int main(int argc, char* argv[]);
 
-//int decode();
-int decode(symbol sym, char* ascii_sym);
+char* decode(symbol sym);
 
