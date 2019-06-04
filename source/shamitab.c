@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
 	// Variables
 	const char* filename = NULL;
 	FILE* file = NULL;
-	int err;	// Error return variable
+	int err = 0;	// Error return variable
 	symbol buffer[1];
 	char* ascii_sym;	// Max length is 3 columns * 7 lines + 1 end of string character
 	charlist* line[7];	// Table of 7 linked lists (lines) of characters
@@ -100,6 +100,8 @@ int main(int argc, char* argv[])
 	}
 
 	// Cleaning up
+	//if(ascii_sym) free(ascii_sym);
+	// TODO free linked lists
 	fclose(file);
 
  	return 0;
@@ -108,11 +110,39 @@ int main(int argc, char* argv[])
 
 char* decode(symbol sym)
 {
+	// Constants
+	const symbol duration_mask =	0xe0000000;
+	const symbol triplet_mask = 	0x10000000;
+	const symbol slide_mask = 		0x08000000;
+	const symbol effect_mask = 		0x07000000;
+	const symbol bachi_mask =		0x00800000;
+	const symbol finger_mask = 		0x00700000;
+	const symbol note1_mask = 		0x00020000;
+	const symbol position1_mask = 	0x0001f000;
+	const symbol note2_mask = 		0x00000800;
+	const symbol position2_mask = 	0x000007c0;
+	const symbol note3_mask = 		0x00000020;
+	const symbol position3_mask = 	0x0000001f;
+	const symbol special_mask =		0x00020820;
+
 	//Variables
 	char* ascii_sym = " ERROR ";
+	char* tmp_ascii_sym = NULL;
+	double duration = 0;
+	bool triplet = false;
+	bool slide = false;
+	bool bachi = false;
+	bool note1 = false;
+	bool note2 = false;
+	bool note3 = false;
+	int8_t effect = 0;
+	int8_t finger = 0;
+	int8_t position1 = 0;
+	int8_t position2 = 0;
+	int8_t position3 = 0;
 
 	// Special symbols
-	if( ( sym & 0x00020820 ) == 0 )
+	if( ( sym & special_mask ) == 0 )
 	{
 		if(DEBUG) printf("I am special!\n");
 		// We only need 3 most significant bits from the symbol
@@ -157,6 +187,85 @@ char* decode(symbol sym)
 	else
 	{
 		if(DEBUG) printf("I am normal.\n");
+		// Get duration
+		duration = (4/pow(2,(sym&duration_mask)>>29));
+		// Get triplet
+		if((sym&triplet_mask)>>28) triplet = true;
+		// Get slide
+		if((sym&slide_mask)>>27) slide = true;
+		// Get effect
+		effect = (int8_t)((sym&effect_mask)>>24);
+		// Get bachi position
+		if((sym&bachi_mask)>>23) bachi = true;
+		// Get finger annotation
+		finger = (int8_t)((sym&finger_mask)>>20);
+		// Get 1st string note/silence
+		if((sym&note1_mask)>>17) note1 = true;
+		// Get 1st string note position
+		position1 = (int8_t)((sym&position1_mask)>>12);
+		// Get 2nd string note/silence
+		if((sym&note2_mask)>>11) note2 = true;
+		// Get 2nd string note position
+		position2 = (int8_t)((sym&position2_mask)>>6);
+		// Get 3rd string note/silence
+		if((sym&note3_mask)>>5) note3 = true;
+		// Get 3rd string note position
+		position3 = (int8_t)((sym&position3_mask)>>0);
+
+		// TODO Error checking
+
+		// Creatng the ASCII representation of the symbol
+		// Check if we need 1 or 2 columns (default 1)
+		if((position1>9)||(position2>9)||(position3>9))
+		{
+			// Create a double column symbol
+			tmp_ascii_sym = malloc(15*sizeof(char));
+			strcpy(tmp_ascii_sym, " - - -  - - - ");
+			// Place notes
+			if(note1)
+			{
+				if(position1>9)
+				{
+					// Placing the dozen digit on the first column
+					tmp_ascii_sym[5] = (position1/10)+'0';
+				}
+				// Placing the unit digit on the second column
+				tmp_ascii_sym[12] = (position1%10)+'0';
+			}
+			if(note2)
+			{
+				if(position2>9)
+				{
+					// Placing the dozen digit on the first column
+					tmp_ascii_sym[3] = (position2/10)+'0';
+				}
+				// Placing the unit digit on the second column
+				tmp_ascii_sym[10] = (position2%10)+'0';
+			}
+			if(note3)
+			{
+				if(position3>9)
+				{
+					// Placing the dozen digit on the first column
+					tmp_ascii_sym[1] = (position3/10)+'0';
+				}
+				// Placing the unit digit on the second column
+				tmp_ascii_sym[8] = (position3%10)+'0';
+			}
+		}
+		else
+		{
+			// Create a single column symbol
+			tmp_ascii_sym = malloc(8*sizeof(char));
+			strcpy(tmp_ascii_sym, " - - - ");
+			// Place notes
+			if(note1) tmp_ascii_sym[5] = (position1%10)+'0';
+			if(note2) tmp_ascii_sym[3] = (position2%10)+'0';
+			if(note3) tmp_ascii_sym[1] = (position3%10)+'0';
+		}
+
+		ascii_sym = tmp_ascii_sym;
+		
 	}
 
  	return ascii_sym;
