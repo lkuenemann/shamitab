@@ -128,18 +128,22 @@ char* decode(symbol sym)
 	//Variables
 	char* ascii_sym = " ERROR ";
 	char* tmp_ascii_sym = NULL;
-	double duration = 0;
+	char effect_marker = ' ';
+	char duration_marker = ' ';
+	//double duration = 0;
 	bool triplet = false;
 	bool slide = false;
 	bool bachi = false;
 	bool note1 = false;
 	bool note2 = false;
 	bool note3 = false;
+	int8_t duration = 0;
 	int8_t effect = 0;
 	int8_t finger = 0;
 	int8_t position1 = 0;
 	int8_t position2 = 0;
 	int8_t position3 = 0;
+	int8_t columns = 1;
 
 	// Special symbols
 	if( ( sym & special_mask ) == 0 )
@@ -188,7 +192,8 @@ char* decode(symbol sym)
 	{
 		if(DEBUG) printf("I am normal.\n");
 		// Get duration
-		duration = (4/pow(2,(sym&duration_mask)>>29));
+		//duration = (4/pow(2,(sym&duration_mask)>>29));
+		duration = (int8_t)((sym&duration_mask)>>29);
 		// Get triplet
 		if((sym&triplet_mask)>>28) triplet = true;
 		// Get slide
@@ -219,6 +224,7 @@ char* decode(symbol sym)
 		if((position1>9)||(position2>9)||(position3>9))
 		{
 			// Create a double column symbol
+			columns = 2;
 			tmp_ascii_sym = malloc(15*sizeof(char));
 			strcpy(tmp_ascii_sym, " - - -  - - - ");
 			// Place notes
@@ -256,6 +262,7 @@ char* decode(symbol sym)
 		else
 		{
 			// Create a single column symbol
+			columns = 1;
 			tmp_ascii_sym = malloc(8*sizeof(char));
 			strcpy(tmp_ascii_sym, " - - - ");
 			// Place notes
@@ -263,6 +270,57 @@ char* decode(symbol sym)
 			if(note2) tmp_ascii_sym[3] = (position2%10)+'0';
 			if(note3) tmp_ascii_sym[1] = (position3%10)+'0';
 		}
+		// Get the right duration marker
+		switch(duration)
+		{
+			case 2:
+				duration_marker = '-';
+				break;
+			case 3:
+				duration_marker = '=';
+				break;
+			case 4:
+				duration_marker = '≡'; // TODO That's not ASCII, may be unsafe...
+				break;
+			default: // Display nothing (space)
+				duration_marker = ' ';
+				break;
+		}
+		// Place duration marker on the lowest note in the chord/symbol
+		if(note1) tmp_ascii_sym[columns*7-1] = duration_marker;
+		else if(note2) tmp_ascii_sym[columns*7-3] = duration_marker;
+		else tmp_ascii_sym[columns*7-5] = duration_marker;
+		// Place triplet marker
+		if(triplet) tmp_ascii_sym[7*columns-1] = '3'; // TODO Change as it can mess with duration representation
+		// Place slide marker
+		if(slide) tmp_ascii_sym[7*columns-7] = '^';
+		if(effect>0 && effect<5)
+		{
+			// Get the right effect marker
+			switch(effect)
+			{
+				case 1: // Hajiki
+					effect_marker = 'h';
+					break;
+				case 2: // Uchi
+					effect_marker = 'u';
+					break;
+				case 3: // Sukui
+					effect_marker = 's';
+					break;
+				case 4: // Suberi
+					effect_marker = '/';
+					break;
+				default: // No effect or undefined
+					effect_marker = ' ';
+					break;
+			}
+			// Place effect marker
+			tmp_ascii_sym[7*columns-7] = effect_marker;
+		}
+		// TODO mae/ushiro bachi representation
+		// Place finger marker
+		if(finger>0 && finger<5) tmp_ascii_sym[7*columns-7] = finger + '0'; // TODO Change as it can override effect representation
 
 		ascii_sym = tmp_ascii_sym;
 		
