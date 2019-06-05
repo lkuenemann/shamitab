@@ -93,10 +93,19 @@ int main(int argc, char* argv[])
 		while(iter[i]->c != '\0')
 		{
 			printf("%c", iter[i]->c);
+			if(i%2)
+			{
+				printf("-"); // Space symbols by spaces outside tab lines
+			}
+			else
+			{
+				printf(" "); // Space symbols by dashes on tab lines
+			}
+
 			iter[i] = iter[i]->next;
 			//getchar();
 		}
-		printf("\n");
+		printf("\b \n"); // "\b " is a cheap trick to remove the extra last spacing printed
 	}
 
 	// Cleaning up
