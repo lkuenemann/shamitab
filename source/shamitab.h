@@ -4,6 +4,7 @@
 
 
 #include <stdio.h>
+#include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -23,5 +24,10 @@ typedef struct CHARLIST {
 
 int main(int argc, char* argv[]);
 
-char* decode(symbol sym);
+char* decode(char* ascii_sym, symbol sym);
 
+void freelist(charlist* head);
+
+charlist* initializelist(charlist* head, char c);
+
+charlist* appendlist(charlist* tail, char c);

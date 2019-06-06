@@ -19,17 +19,15 @@ int main(int argc, char* argv[])
 	FILE* file = NULL;
 	int err = 0;	// Error return variable
 	symbol buffer[1];
-	char* ascii_sym;	// Max length is 3 columns * 7 lines + 1 end of string character
-	charlist* line[7];	// Table of 7 linked lists (lines) of characters
-	charlist* linelast[7];	// Table of pointers to last element on above lists
-	charlist* iter[7];
+	char ascii_sym[22];	// Max length is 3 columns * 7 lines + 1 end of string character
+	charlist* line_head[7];	// Table of 7 linked lists (lines) of characters
+	charlist* line_tail[7];	// Table of pointers to last element on above lists
+	charlist* line_iter[7];
 	for(int i=0; i<7; i++)
 	{
-		line[i] = malloc(sizeof(charlist*));
-		line[i]->c = '\0';
-		line[i]->next = NULL;
-		linelast[i] = line[i];
-		iter[i] = NULL;
+		line_head[i] = NULL;
+		line_tail[i] = line_head[i];
+		line_iter[i] = NULL;
 	}
 
 
@@ -57,7 +55,7 @@ int main(int argc, char* argv[])
 	{
 		// Decode symbol
 		if(DEBUG) printf("Read symbol: %08x\n", buffer[0]);
-		ascii_sym = decode(buffer[0]);
+		decode(ascii_sym, buffer[0]);
 		if(err) 	// TODO change error checking to check for something as err isn't used here anymore
 		{
 			printf("Error: cannot decode symbol.\n");
@@ -69,17 +67,29 @@ int main(int argc, char* argv[])
 		// Unscramble ASCII symbol
 		for(int i=0; ascii_sym[i]!='\0' && i<21; i++)	// i<21 is a preventive safety measure in case ascii_sym does not end with a \0 end of string character
 		{
-			// Append character to line
-			linelast[i%7]->c = ascii_sym[i];
-			if(DEBUG) printf("ascii_sym[%d] is: %c\n", i, ascii_sym[i]);
-			// Allocate a new element to the line
-			linelast[i%7]->next = malloc(sizeof(charlist));
-			// Let's point on this new element
-			linelast[i%7] = linelast[i%7]->next;
-			// Setting next to NULL before we mess up something
-			linelast[i%7]->next = NULL;
-			// Setting last character to end of string \0
-			linelast[i%7]->c = '\0';
+			// If line still empty
+			if(line_head[i%7]==NULL)
+			{
+				// Initialize the head of the line
+				line_head[i%7] = initializelist(line_head[i%7], ascii_sym[i]);
+				line_tail[i%7] = line_head[i%7];
+			}
+			else
+			{
+				// Append to the line
+				line_tail[i%7] = appendlist(line_tail[i%7], ascii_sym[i]);
+				/* // Append character to line
+				   line_tail[i%7]->c = ascii_sym[i];
+				   if(DEBUG) printf("ascii_sym[%d] is: %c\n", i, ascii_sym[i]);
+				// Allocate a new element to the line
+				line_tail[i%7]->next = malloc(sizeof(charlist));
+				// Let's point on this new element
+				line_tail[i%7] = line_tail[i%7]->next;
+				// Setting next to NULL before we mess up something
+				line_tail[i%7]->next = NULL;
+				// Setting last character to end of string \0
+				line_tail[i%7]->c = '\0';*/
+			}
 		}
 
 		// Read next symbol
@@ -89,10 +99,10 @@ int main(int argc, char* argv[])
 	// Display the whole tab
 	for(int i=0; i<7; i++)
 	{
-		iter[i] = line[i];
-		while(iter[i]->c != '\0')
+		line_iter[i] = line_head[i];
+		while(line_iter[i] != NULL)
 		{
-			printf("%c", iter[i]->c);
+			printf("%c", line_iter[i]->c);
 			if(i%2)
 			{
 				printf("-"); // Space symbols by spaces outside tab lines
@@ -102,7 +112,7 @@ int main(int argc, char* argv[])
 				printf(" "); // Space symbols by dashes on tab lines
 			}
 
-			iter[i] = iter[i]->next;
+			line_iter[i] = line_iter[i]->next;
 			//getchar();
 		}
 		printf("\b \n"); // "\b " is a cheap trick to remove the extra last spacing printed
@@ -111,13 +121,20 @@ int main(int argc, char* argv[])
 	// Cleaning up
 	//if(ascii_sym) free(ascii_sym);
 	// TODO free linked lists
+	for(int i=0; i<7; i++)
+	{
+		freelist(line_head[i]);
+		line_head[i] = NULL;
+		line_tail[i] = NULL;
+		line_iter[i] = NULL;
+	}
 	fclose(file);
 
  	return 0;
 }
 
 
-char* decode(symbol sym)
+char* decode(char* ascii_sym, symbol sym)
 {
 	// Constants
 	const symbol duration_mask =	0xe0000000;
@@ -135,7 +152,7 @@ char* decode(symbol sym)
 	const symbol special_mask =		0x00020820;
 
 	//Variables
-	char* ascii_sym = " ERROR ";
+	//char* ascii_sym = " ERROR ";
 	char* tmp_ascii_sym = NULL;
 	char effect_marker = ' ';
 	char duration_marker = ' ';
@@ -167,31 +184,32 @@ char* decode(symbol sym)
 			// Silence
 			case 0:
 				if(DEBUG) printf(">>Silence\n");
-				ascii_sym = " - x - ";
+				strcpy(ascii_sym, " - x - ");
 				break;
 			// Bar
 			case 1:
 				if(DEBUG) printf(">>Bar\n");
-				ascii_sym = " ||||| ";
+				strcpy(ascii_sym, " ||||| ");
 				break;
 			// Double bar
 			case 2:
 				if(DEBUG) printf(">>Double bar\n");
-				ascii_sym = " |||||  ||||| ";
+				strcpy(ascii_sym, " |||||  ||||| ");
 				break;
 			// Left repeat sign
 			case 3:
 				if(DEBUG) printf(">>Left repeat sign\n");
-				ascii_sym = " |||||  |||||  -.-.- ";
+				strcpy(ascii_sym, " |||||  |||||  -.-.- ");
 				break;
 			// Bar
 			case 4:
 				if(DEBUG) printf(">>Right repeat sign\n");
-				ascii_sym = " -.-.-  |||||  ||||| ";
+				strcpy(ascii_sym, " -.-.-  |||||  ||||| ");
 				break;
 			// Default: undefined
 			default:
 				printf("Error: Undefined symbol.\n");
+				strcpy(ascii_sym, " ERROR ");
 				return ascii_sym;
 		}
 		if(DEBUG) printf("%s\n", ascii_sym);
@@ -331,9 +349,44 @@ char* decode(symbol sym)
 		// Place finger marker
 		if(finger>0 && finger<5) tmp_ascii_sym[7*columns-7] = finger + '0'; // TODO Change as it can override effect representation
 
-		ascii_sym = tmp_ascii_sym;
+		strcpy(ascii_sym, tmp_ascii_sym);
 		
 	}
+	free(tmp_ascii_sym);
 
  	return ascii_sym;
+}
+
+
+// Free linked list
+void freelist(charlist* head)
+{
+	charlist* tmp;
+	while(head!=NULL)
+	{
+		tmp = head;
+		head = head->next;
+		free(tmp);
+	}
+}
+
+
+// Initialize charlist
+charlist* initializelist(charlist* head, char c)
+{
+	head = malloc(sizeof(charlist));
+	head->c = c;
+	head->next = NULL;
+	return head;
+}
+
+
+// Append new element to charlist linked list
+charlist* appendlist(charlist* tail, char c)
+{
+	charlist* new = malloc(sizeof(charlist));
+	new->c = c;
+	new->next = NULL;
+	tail->next = new;
+	return new;
 }
