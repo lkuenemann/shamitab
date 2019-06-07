@@ -8,7 +8,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <math.h>
 
 #define DEBUG 1
 
@@ -24,7 +23,7 @@ typedef struct CHARLIST {
 
 int main(int argc, char* argv[]);
 
-char* decode(char* ascii_sym, symbol sym);
+int decode(char* ascii_sym, symbol sym);
 
 void freelist(charlist* head);
 

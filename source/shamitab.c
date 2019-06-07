@@ -11,7 +11,6 @@ int main(int argc, char* argv[])
 
 	// Constants
 	const int nargs = 1;	// Total number of arguments expected
-	const int bsize = 256;	// Number of symbols read at once
 
 
 	// Variables
@@ -55,7 +54,7 @@ int main(int argc, char* argv[])
 	{
 		// Decode symbol
 		if(DEBUG) printf("Read symbol: %08x\n", buffer[0]);
-		decode(ascii_sym, buffer[0]);
+		err = decode(ascii_sym, buffer[0]);
 		if(err) 	// TODO change error checking to check for something as err isn't used here anymore
 		{
 			printf("Error: cannot decode symbol.\n");
@@ -78,17 +77,6 @@ int main(int argc, char* argv[])
 			{
 				// Append to the line
 				line_tail[i%7] = appendlist(line_tail[i%7], ascii_sym[i]);
-				/* // Append character to line
-				   line_tail[i%7]->c = ascii_sym[i];
-				   if(DEBUG) printf("ascii_sym[%d] is: %c\n", i, ascii_sym[i]);
-				// Allocate a new element to the line
-				line_tail[i%7]->next = malloc(sizeof(charlist));
-				// Let's point on this new element
-				line_tail[i%7] = line_tail[i%7]->next;
-				// Setting next to NULL before we mess up something
-				line_tail[i%7]->next = NULL;
-				// Setting last character to end of string \0
-				line_tail[i%7]->c = '\0';*/
 			}
 		}
 
@@ -119,8 +107,6 @@ int main(int argc, char* argv[])
 	}
 
 	// Cleaning up
-	//if(ascii_sym) free(ascii_sym);
-	// TODO free linked lists
 	for(int i=0; i<7; i++)
 	{
 		freelist(line_head[i]);
@@ -134,7 +120,7 @@ int main(int argc, char* argv[])
 }
 
 
-char* decode(char* ascii_sym, symbol sym)
+int decode(char* ascii_sym, symbol sym)
 {
 	// Constants
 	const symbol duration_mask =	0xe0000000;
@@ -152,11 +138,9 @@ char* decode(char* ascii_sym, symbol sym)
 	const symbol special_mask =		0x00020820;
 
 	//Variables
-	//char* ascii_sym = " ERROR ";
 	char* tmp_ascii_sym = NULL;
 	char effect_marker = ' ';
 	char duration_marker = ' ';
-	//double duration = 0;
 	bool triplet = false;
 	bool slide = false;
 	bool bachi = false;
@@ -210,16 +194,15 @@ char* decode(char* ascii_sym, symbol sym)
 			default:
 				printf("Error: Undefined symbol.\n");
 				strcpy(ascii_sym, " ERROR ");
-				return ascii_sym;
+				break;
 		}
 		if(DEBUG) printf("%s\n", ascii_sym);
-	}	
+	}
 	// General case
 	else
 	{
 		if(DEBUG) printf("I am normal.\n");
 		// Get duration
-		//duration = (4/pow(2,(sym&duration_mask)>>29));
 		duration = (int8_t)((sym&duration_mask)>>29);
 		// Get triplet
 		if((sym&triplet_mask)>>28) triplet = true;
@@ -354,7 +337,7 @@ char* decode(char* ascii_sym, symbol sym)
 	}
 	free(tmp_ascii_sym);
 
- 	return ascii_sym;
+ 	return 0;
 }
 
 
