@@ -79,7 +79,6 @@ int main(int argc, char* argv[])
 				line_tail[i%7] = appendlist(line_tail[i%7], ascii_sym[i]);
 			}
 		}
-
 		// Read next symbol
 		fread(buffer, symbol_size, 1, file);
 	}
@@ -91,7 +90,11 @@ int main(int argc, char* argv[])
 		while(line_iter[i] != NULL)
 		{
 			printf("%c", line_iter[i]->c);
-			if(i%2)
+			if(line_iter[i]->next==NULL)
+			{
+				break; // Avoid printing characters after the end of the line
+			}
+			else if(i%2)
 			{
 				printf("-"); // Space symbols by spaces outside tab lines
 			}
@@ -101,9 +104,9 @@ int main(int argc, char* argv[])
 			}
 
 			line_iter[i] = line_iter[i]->next;
-			//getchar();
 		}
-		printf("\b \n"); // "\b " is a cheap trick to remove the extra last spacing printed
+		//printf("\b \n"); // "\b " is a cheap trick to remove the extra last spacing printed
+		printf("\n");
 	}
 
 	// Cleaning up
@@ -138,6 +141,7 @@ int decode(char* ascii_sym, symbol sym)
 	const symbol special_mask =		0x00020820;
 
 	//Variables
+	symbol special = 0;
 	char* tmp_ascii_sym = NULL;
 	char effect_marker = ' ';
 	char duration_marker = ' ';
@@ -161,32 +165,34 @@ int decode(char* ascii_sym, symbol sym)
 		if(DEBUG) printf("I am special!\n");
 		// We only need 3 most significant bits from the symbol
 		// Extracting them by shifting 29 bits to the right
-		char a = sym >> 29;
+		//int8_t a = sym >> 29;
+		// Masking them (by precaution) then switching on all possible values
+		special = sym & duration_mask;
 		// Then switching to find out which special symbol it is
-		switch(a)
+		switch(special)
 		{
 			// Silence
-			case 0:
+			case 0x00000000:
 				if(DEBUG) printf(">>Silence\n");
 				strcpy(ascii_sym, " - x - ");
 				break;
 			// Bar
-			case 1:
+			case 0x20000000:
 				if(DEBUG) printf(">>Bar\n");
 				strcpy(ascii_sym, " ||||| ");
 				break;
 			// Double bar
-			case 2:
+			case 0x40000000:
 				if(DEBUG) printf(">>Double bar\n");
 				strcpy(ascii_sym, " |||||  ||||| ");
 				break;
 			// Left repeat sign
-			case 3:
+			case 0x60000000:
 				if(DEBUG) printf(">>Left repeat sign\n");
 				strcpy(ascii_sym, " |||||  |||||  -.-.- ");
 				break;
-			// Bar
-			case 4:
+			// Right repeat sign
+			case 0x80000000:
 				if(DEBUG) printf(">>Right repeat sign\n");
 				strcpy(ascii_sym, " -.-.-  |||||  ||||| ");
 				break;
