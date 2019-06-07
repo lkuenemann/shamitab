@@ -9,24 +9,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include "charlist.h"
+
 #define DEBUG 1
 
-typedef int32_t symbol;	// Defining a 32 bits type for a 33t symbol
+
+typedef int32_t symbol;	// Defining a 32 bits type for a 3mt symbol
 const int symbol_size = 4;
 const symbol eof = 0xffffffff;
-
-typedef struct CHARLIST {
-	char c;
-	struct CHARLIST* next;
-} charlist;
 
 
 int main(int argc, char* argv[]);
 
 int decode(char* ascii_sym, symbol sym);
 
-void freelist(charlist* head);
-
-charlist* initializelist(charlist* head, char c);
-
-charlist* appendlist(charlist* tail, char c);

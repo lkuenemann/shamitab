@@ -1,15 +1,17 @@
-HEADERS = source/shamitab.h
-OBJECTS = source/shamitab.o
-
+HEADERS = source/shamitab.h source/charlist.h
+OBJECTS = source/shamitab.o source/charlist.o
+CFLAGS = -Wall -g -O0
+LIBS = 
+CC = gcc
 VPATH = source
 
 default: shamitab
 
 %.o: %.c $(HEADERS)
-	gcc -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
-program: $(OBJECTS)
-	gcc $(OBJECTS) -o $@
+shamitab: $(OBJECTS)
+	$(CC) $(OBJECTS) -Wall $(LIBS) -o $@
 
 clean:
 	-rm -f $(OBJECTS)
