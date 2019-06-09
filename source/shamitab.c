@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 	FILE* file = NULL;
 	int err = 0;	// Error return variable
 	symbol buffer[1];
-	char ascii_sym[22];	// Max length is 3 columns * 7 lines + 1 end of string character
+	char ascii_sym[29];	// Max length is 3 columns * 7 lines + 1 end of string character
 	charlist* line_head[7];	// Table of 7 linked lists (lines) of characters
 	charlist* line_tail[7];	// Table of pointers to last element on above lists
 	charlist* line_iter[7];
@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
 		if(DEBUG) printf("Got symbol: %s\n", ascii_sym);
 
 		// Unscramble ASCII symbol
-		for(int i=0; ascii_sym[i]!='\0' && i<21; i++)	// i<21 is a preventive safety measure in case ascii_sym does not end with a \0 end of string character
+		for(int i=0; ascii_sym[i]!='\0' && i<28; i++)	// i<21 is a preventive safety measure in case ascii_sym does not end with a \0 end of string character
 		{
 			// If line still empty
 			if(line_head[i%7]==NULL)
@@ -87,25 +87,11 @@ int main(int argc, char* argv[])
 	for(int i=0; i<7; i++)
 	{
 		line_iter[i] = line_head[i];
-		while(line_iter[i] != NULL)
+		while(line_iter[i]->next != NULL)
 		{
 			printf("%c", line_iter[i]->c);
-			if(line_iter[i]->next==NULL)
-			{
-				break; // Avoid printing characters after the end of the line
-			}
-			else if(i%2)
-			{
-				printf("-"); // Space symbols by spaces outside tab lines
-			}
-			else
-			{
-				printf(" "); // Space symbols by dashes on tab lines
-			}
-
 			line_iter[i] = line_iter[i]->next;
 		}
-		//printf("\b \n"); // "\b " is a cheap trick to remove the extra last spacing printed
 		printf("\n");
 	}
 
@@ -164,8 +150,6 @@ int decode(char* ascii_sym, symbol sym)
 	{
 		if(DEBUG) printf("I am special!\n");
 		// We only need 3 most significant bits from the symbol
-		// Extracting them by shifting 29 bits to the right
-		//int8_t a = sym >> 29;
 		// Masking them (by precaution) then switching on all possible values
 		special = sym & duration_mask;
 		// Then switching to find out which special symbol it is
@@ -342,6 +326,8 @@ int decode(char* ascii_sym, symbol sym)
 		
 	}
 	free(tmp_ascii_sym);
+	// Append a tab "space" right after the symbol
+	strcat(ascii_sym, " - - - ");
 
  	return 0;
 }
