@@ -11,7 +11,7 @@
 
 #include "charlist.h"
 
-#define DEBUG 1
+#define DEBUG 0
 
 
 typedef int32_t symbol;	// Defining a 32 bits type for a 3mt symbol
