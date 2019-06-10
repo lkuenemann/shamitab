@@ -9,3 +9,5 @@ for testfile in ./test-*.sh; do
 	#printf "$testfile :	" >> $RESOUT
 	$testfile >> $RESOUT
 done
+
+cat $RESOUT
