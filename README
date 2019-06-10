@@ -23,3 +23,8 @@ TODO:
 * Ringo bushi 3mt tab for bar 1 to 11
 * Tab creation mode (convert ASCII text to 3mt tab)
 * Interactive tab edition mode
+* Better slide display (can collide with other effects)
+* Better suberi display
+* Better effects/finger display (can collide together)
+* Better triplets display (can collide with duration display on first string)
+* Graphical display (no more ASCII!)
