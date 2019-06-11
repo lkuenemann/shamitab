@@ -55,7 +55,7 @@ Special symbols are coded by D in the following manner:
 | Other   | Undefined    |
 +---------+--------------+
 
-By convention, all other bits should be set to 0 with the exception of A for a silence, where it should be encoding its duration.
+By convention, all other bits should be set to 0 with the exception of A for a silence, where it should be encoding its duration using the definition given in "Normal symbols" section, "A: duration" sub-section.
 
 
 Normal symbols:
