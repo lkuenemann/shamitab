@@ -151,7 +151,7 @@ int decode(char* ascii_sym, symbol sym)
 		if(DEBUG) printf("I am special!\n");
 		// We only need 3 most significant bits from the symbol
 		// Masking them (by precaution) then switching on all possible values
-		special = sym & duration_mask;
+		special = sym & effect_mask;
 		// Then switching to find out which special symbol it is
 		switch(special)
 		{
@@ -161,22 +161,22 @@ int decode(char* ascii_sym, symbol sym)
 				strcpy(ascii_sym, " - x - ");
 				break;
 			// Bar
-			case 0x20000000:
+			case 0x01000000:
 				if(DEBUG) printf(">>Bar\n");
 				strcpy(ascii_sym, " ||||| ");
 				break;
 			// Double bar
-			case 0x40000000:
+			case 0x02000000:
 				if(DEBUG) printf(">>Double bar\n");
 				strcpy(ascii_sym, " |||||  ||||| ");
 				break;
 			// Left repeat sign
-			case 0x60000000:
+			case 0x03000000:
 				if(DEBUG) printf(">>Left repeat sign\n");
 				strcpy(ascii_sym, " |||||  |||||  -.-.- ");
 				break;
 			// Right repeat sign
-			case 0x80000000:
+			case 0x04000000:
 				if(DEBUG) printf(">>Right repeat sign\n");
 				strcpy(ascii_sym, " -.-.-  |||||  ||||| ");
 				break;
