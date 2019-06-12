@@ -159,6 +159,26 @@ int decode(char* ascii_sym, symbol sym)
 			case 0x00000000:
 				if(DEBUG) printf(">>Silence\n");
 				strcpy(ascii_sym, " - x - ");
+				// Get duration
+				duration = (int8_t)((sym&duration_mask)>>29);
+				// Get the right duration marker
+				switch(duration)
+				{
+					case 2:
+						duration_marker = '-';
+						break;
+					case 3:
+						duration_marker = '=';
+						break;
+					case 4:
+						duration_marker = '≡'; // TODO That's not ASCII, may be unsafe...
+						break;
+					default: // Display nothing (space)
+						duration_marker = ' ';
+						break;
+				}
+				// Place duration marker under the silence symbol (middle string)
+				ascii_sym[4] = duration_marker;
 				break;
 			// Bar
 			case 0x01000000:
