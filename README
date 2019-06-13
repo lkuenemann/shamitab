@@ -17,7 +17,6 @@ To run Shamitab:
 
 TODO:
 *****
-* Magic number at the beginning of tab to protect from segfaults from random files
 * Test for all durations display
 * Test for mae bachi/ushiro bachi display
 * Tab creation mode (convert ASCII text to 3mt tab)
