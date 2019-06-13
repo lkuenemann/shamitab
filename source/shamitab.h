@@ -1,25 +1,22 @@
 /* Shamitab alpha
  * Luc Kuenemann
+ *
+ * Global header for all constants and general types declarations
  */
 
+#ifndef SHAMITAB_H
+#define SHAMITAB_H
 
-#include <stdio.h>
-#include <string.h>
 #include <stdint.h>
-#include <stdlib.h>
-#include <stdbool.h>
-
-#include "charlist.h"
 
 #define DEBUG 0
-#define MAGIC 0x334d5421
 
+// Types
 typedef int32_t symbol;	// Defining a 32 bits type for a 3mt symbol
-const int symbol_size = 4;
-const symbol eof = 0xffffffff;
 
+// Constants
+extern const int SYM_SIZE;	// Size of a 3mt symbol in bytes
+extern const symbol EOF_SYM;	// 3mt end of file symbol
+extern const symbol MAGIC_SYM;	// 3mt file magic number
 
-int main(int argc, char* argv[]);
-
-int decode(char* ascii_sym, symbol sym);
-
+#endif
