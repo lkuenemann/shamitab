@@ -49,7 +49,15 @@ int main(int argc, char* argv[])
 	if(DEBUG) printf("File open!\n");
 	// Read first symbol
 	fread(buffer, symbol_size, 1, file);
+	// Check for magic number
+	if(buffer[0]!=MAGIC)
+	{
+		printf("Error: not a proper 3mt file!\n");
+		return 1;
+	}
+
 	// Loop while not EOF
+	fread(buffer, symbol_size, 1, file);
 	while(buffer[0]!=eof)
 	{
 		// Decode symbol

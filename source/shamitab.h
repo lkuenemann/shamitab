@@ -12,7 +12,7 @@
 #include "charlist.h"
 
 #define DEBUG 0
-
+#define MAGIC 0x334d5421
 
 typedef int32_t symbol;	// Defining a 32 bits type for a 3mt symbol
 const int symbol_size = 4;
