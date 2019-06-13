@@ -20,7 +20,6 @@ TODO:
 * Magic number at the beginning of tab to protect from segfaults from random files
 * Test for all durations display
 * Test for mae bachi/ushiro bachi display
-* Ringo bushi 3mt tab for bar 1 to 11
 * Tab creation mode (convert ASCII text to 3mt tab)
 * Interactive tab edition mode
 * Better slide display (can collide with other effects)
