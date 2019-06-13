@@ -10,7 +10,7 @@ Introduction:
 *************
 The shamitab format is an attempt to define a shamisen tablature encoding format. The tablature is encoded in terms of "symbols", where one symbol is an single element (bar, silence, single note, chord, etc.) of the tablature. Symbols are atomic units of the shamitab format, encoding all the possible properties a shamisen tablature element could hold on 32 bits.
 
-In the shamitab format, all symbols on the tablature are encoded one by one in order, from first to last. A shamitab file ends with an end of file (EOF) marker (see file markers section).
+In the shamitab format, all symbols on the tablature are encoded one by one in order, from first to last. A shamitab file begins with a magic number, and ends with an end of file (EOF) marker (see file markers section).
 
 The shamitab format makes a distinction between normal symbols (notes and chords), and special symbols (silence, bar, repeat symbol). The encoding is defined as follows, with the 32 bits broken down into 9 components:
 
@@ -127,5 +127,6 @@ The position of the note is directly coded in standard binary from 00000 (positi
 
 File markers:
 *************
+Shamitab files all begin with the magic number 0x334d5421 (ASCII for 3MT!).
 Shamitab files are all ending with an end of file (EOF) marker 0xFFFFFFFF (all 32 bits set to 1).
 
