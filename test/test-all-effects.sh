@@ -2,7 +2,7 @@
 set -eu
 
 #Define tab viewer ASCII output file and correct expected output file
-SHAMITAB='../shamitab'
+SHAMITAB='../shamitab view'
 TAB='all-effects.3mt'
 OUTPUT='output-tab.txt'
 CORRECT='all-effects.txt'
