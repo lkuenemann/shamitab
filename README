@@ -12,7 +12,7 @@ make clean
 RUNNING:
 ********
 To run Shamitab:
-./shamitab [path-to-tab.3mt]
+./shamitab view [path-to-tab.3mt]
 
 
 TODO:
