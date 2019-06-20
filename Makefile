@@ -1,5 +1,5 @@
-HEADERS = source/shamitab.h source/charlist.h source/view.h
-OBJECTS = source/shamitab.o source/charlist.o source/view.o
+HEADERS = source/shamitab.h source/charlist.h source/view.h source/convert.h
+OBJECTS = source/shamitab.o source/charlist.o source/view.o source/convert.o
 CFLAGS = -Wall -g -O0
 LIBS = 
 CC = gcc

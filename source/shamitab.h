@@ -9,7 +9,7 @@
 
 #include <stdint.h>
 
-#define DEBUG 0
+#define DEBUG 1
 
 // Types
 typedef int32_t symbol;	// Defining a 32 bits type for a 3mt symbol

@@ -5,6 +5,7 @@
  */
 
 #include "view.h"
+#include "convert.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -40,7 +41,8 @@ int main(int argc, char* argv[])
 
 	// Variables
 	char* command = NULL;
-	char* filename = NULL;
+	char* in_filename = NULL;
+	char* out_filename = NULL;
 	int err = 0;	// Error return variable
 
 
@@ -53,7 +55,6 @@ int main(int argc, char* argv[])
 
 	// Parsing arguments
 	command = argv[1];
-	filename = argv[2];
 
 	// Help routine
 	if(!strcmp(command, "help") || !strcmp(command, "h"))
@@ -64,15 +65,32 @@ int main(int argc, char* argv[])
 	// Viewing routine
 	else if(!strcmp(command, "view") || !strcmp(command,"v"))
 	{
+		// Arguments check
+		if(argc != 3)
+		{
+			printf("Error: expected 2 arguments but got %d.\n", argc-1);
+			return 1;
+		}
+		in_filename = argv[2];
 		// Call viewing routine
-		err = view(filename);
+		err = view(in_filename);
 		if(err) return 1;
 	}
 
 	// Conversion routine
 	else if(!strcmp(command, "convert") || !strcmp(command, "c"))
 	{
-		printf("Not implemented yet.\n");
+		// Arguments check
+		if(argc != 4)
+		{
+			printf("Error: expected 3 arguments but got %d.\n", argc-1);
+			return 1;
+		}
+		in_filename = argv[2];
+		out_filename = argv[3];
+		// Call conversion routine
+		err = convert(in_filename, out_filename);
+		if(err) return 1;
 	}
 
 	// Undefined command
