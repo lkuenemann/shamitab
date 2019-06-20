@@ -3,9 +3,9 @@ set -eu
 
 #Define tab viewer ASCII output file and correct expected output file
 SHAMITAB='../shamitab view'
-TAB='ringo-bushi-4.3mt'
+TAB='ringo-bushi-1to11.3mt'
 OUTPUT='output-tab.txt'
-CORRECT='ringo-bushi-4-basic.txt'
+CORRECT='ringo-bushi-1to11.txt'
 
 #Check that both files exist
 if [ ! -f $TAB ]; then
