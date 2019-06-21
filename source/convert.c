@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 
 int convert(char* in_filename, char* out_filename)
@@ -156,6 +157,9 @@ char** parse(char** line, size_t* allocated_size, FILE* in_file, size_t* length_
 int encode(symbol* sym, char** column, size_t column_size, size_t column_pos)
 {
 	// Variables
+	char char1 = 0;
+	char char2 = 0;
+	bool double_sym = false;
 
 	if(DEBUG) printf("Encoding column %ld out of %ld\n", column_pos, column_size-1);
 
@@ -215,6 +219,87 @@ int encode(symbol* sym, char** column, size_t column_size, size_t column_pos)
 	}
 	
 	// Normal symbols
+	else
+	{
+		if(DEBUG) printf("It's a normal symbol\n");
+		*sym = 0x0;
 
+		// Check 3rd string for a note
+		char1 = column[column_pos][1];
+		if(char1 >= '0' && char1 <= '9') // There's a position marker
+		{
+			*sym += 0x00000020; // Change G3 to 1
+			if(column_pos+1 < column_size) // Would a double column symbol overflow?
+			{
+				char2 = column[column_pos+1][1];
+				double_sym = true;
+			}
+			if(char2 >= '0' && char2 <= '9') // Double column symbol
+			{
+				*sym += (uint32_t) 10*(char1-'0')+(char2-'0'); // Change H3 to position
+				if(DEBUG) printf("Got double symbol %u\n", (uint32_t) 10*(char1-'0')+(char2-'0'));
+			}
+			else // Single column symbol
+			{
+				*sym += (uint32_t) (char1-'0'); // Change H3 to position
+				if(DEBUG) printf("Got single symbol %u\n", (uint32_t) (char1-'0'));
+			}
+		}
+
+		// Check 2nd string for a note
+		char1 = column[column_pos][3];
+		if(char1 >= '0' && char1 <= '9') // There's a position marker
+		{
+			*sym += 0x00000800; // Change G2 to 1
+			if(column_pos+1 < column_size) // Would a double column symbol overflow?
+			{
+				char2 = column[column_pos+1][3];
+				double_sym = true;
+			}
+			if(char2 >= '0' && char2 <= '9') // Double column symbol
+			{
+				*sym += ((uint32_t) 10*(char1-'0')+(char2-'0')) << 6; // Change H2 to position
+				if(DEBUG) printf("Got double symbol %u\n", (uint32_t) 10*(char1-'0')+(char2-'0'));
+			}
+			else // Single column symbol
+			{
+				*sym += ((uint32_t) (char1-'0')) << 6; // Change H2 to position
+				if(DEBUG) printf("Got single symbol %u\n", (uint32_t) (char1-'0'));
+			}
+		}
+
+		// Check 1st string for a note
+		char1 = column[column_pos][5];
+		if(char1 >= '0' && char1 <= '9') // There's a position marker
+		{
+			*sym += 0x00020000; // Change G1 to 1
+			if(column_pos+1 < column_size) // Would a double column symbol overflow?
+			{
+				char2 = column[column_pos+1][5];
+				double_sym = true;
+			}
+			if(char2 >= '0' && char2 <= '9') // Double column symbol
+			{
+				*sym += ((uint32_t) 10*(char1-'0')+(char2-'0')) << 12; // Change H1 to position
+				if(DEBUG) printf("Got double symbol %u\n", (uint32_t) 10*(char1-'0')+(char2-'0'));
+			}
+			else // Single column symbol
+			{
+				*sym += ((uint32_t) (char1-'0')) << 12; // Change H1 to position
+				if(DEBUG) printf("Got single symbol %u\n", (uint32_t) (char1-'0'));
+			}
+		}
+
+		// Check duration marker
+
+		// Check effect/annotation
+
+		// Check triplet
+
+		if(double_sym){ return 2; }
+		else{ return 1; }
+	}
+
+	// Should not end up here
 	return 0;
 }
