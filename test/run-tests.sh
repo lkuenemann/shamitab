@@ -65,8 +65,8 @@ for tab in $TABLIST ; do
 
 	#Compare to example txt tab
 	if diff --brief $OUTPUT $tab.txt > /dev/null;
-		then echo "PASS	full-circle $tab" >> $SUMMARY; PASS=$((PASS+1))
-		else echo "FAIL	full-circle $tab" >> $SUMMARY
+		then echo "PASS	convert+view $tab" >> $SUMMARY; PASS=$((PASS+1))
+		else echo "FAIL	convert+view $tab" >> $SUMMARY
 	fi
 
 	#Clean-up
