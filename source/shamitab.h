@@ -9,7 +9,7 @@
 
 #include <stdint.h>
 
-#define DEBUG 1
+#define DEBUG 0
 
 // Types
 typedef uint32_t symbol;	// Defining an unsigned 32 bits type for a 3mt symbol

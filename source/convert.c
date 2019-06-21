@@ -160,21 +160,22 @@ int encode(symbol* sym, char** column, size_t column_size, size_t column_pos)
 	char char1 = 0;
 	char char2 = 0;
 	bool double_sym = false;
+	size_t pos = column_pos;
 
 	if(DEBUG) printf("Encoding column %ld out of %ld\n", column_pos, column_size-1);
 
 	// Filler
-	if(!strcmp(column[column_pos], " - - - ")) return -1; // Skipping
+	if(!strcmp(column[pos], " - - - ")) return -1; // Skipping
 
 	// Special symbols
 	// Bar, double bar, and left repeat
-	if(!strcmp(column[column_pos], " ||||| "))
+	if(!strcmp(column[pos], " ||||| "))
 	{
 		// Double or triple symbol
-		if( (column_pos+1<column_size) && (!strcmp(column[column_pos+1], " ||||| ")) )
+		if( (pos+1<column_size) && (!strcmp(column[pos+1], " ||||| ")) )
 		{
 			// Left repeat symbol
-			if( (column_pos+2<column_size) && (!strcmp(column[column_pos+2], " -.-.- ")) )
+			if( (pos+2<column_size) && (!strcmp(column[pos+2], " -.-.- ")) )
 			{
 				*sym = 0x03000000; // Left repeat symbol
 				return 3;
@@ -194,16 +195,16 @@ int encode(symbol* sym, char** column, size_t column_size, size_t column_pos)
 		}
 	}
 	// Right repeat symbol
-	else if(!strcmp(column[column_pos], " -.-.- "))
+	else if(!strcmp(column[pos], " -.-.- "))
 	{
 		*sym = 0x04000000; // Right repeat symbol
 		return 3;
 	}
 	// Silence
-	else if(column[column_pos][3] == 'x')
+	else if(column[pos][3] == 'x')
 	{
 		// Check duration
-		switch(column[column_pos][4])
+		switch(column[pos][4])
 		{
 			case '-': // 1 beat
 				*sym = 0x40000000;
@@ -225,19 +226,19 @@ int encode(symbol* sym, char** column, size_t column_size, size_t column_pos)
 		*sym = 0x0;
 
 		// Check 3rd string for a note
-		char1 = column[column_pos][1];
+		char1 = column[pos][1];
 		if(char1 >= '0' && char1 <= '9') // There's a position marker
 		{
 			*sym += 0x00000020; // Change G3 to 1
-			if(column_pos+1 < column_size) // Would a double column symbol overflow?
+			if(pos+1 < column_size) // Would a double column symbol overflow?
 			{
-				char2 = column[column_pos+1][1];
-				double_sym = true;
+				char2 = column[pos+1][1];
 			}
 			if(char2 >= '0' && char2 <= '9') // Double column symbol
 			{
 				*sym += (uint32_t) 10*(char1-'0')+(char2-'0'); // Change H3 to position
 				if(DEBUG) printf("Got double symbol %u\n", (uint32_t) 10*(char1-'0')+(char2-'0'));
+				double_sym = true;
 			}
 			else // Single column symbol
 			{
@@ -247,19 +248,19 @@ int encode(symbol* sym, char** column, size_t column_size, size_t column_pos)
 		}
 
 		// Check 2nd string for a note
-		char1 = column[column_pos][3];
+		char1 = column[pos][3];
 		if(char1 >= '0' && char1 <= '9') // There's a position marker
 		{
 			*sym += 0x00000800; // Change G2 to 1
-			if(column_pos+1 < column_size) // Would a double column symbol overflow?
+			if(pos+1 < column_size) // Would a double column symbol overflow?
 			{
-				char2 = column[column_pos+1][3];
-				double_sym = true;
+				char2 = column[pos+1][3];
 			}
 			if(char2 >= '0' && char2 <= '9') // Double column symbol
 			{
 				*sym += ((uint32_t) 10*(char1-'0')+(char2-'0')) << 6; // Change H2 to position
 				if(DEBUG) printf("Got double symbol %u\n", (uint32_t) 10*(char1-'0')+(char2-'0'));
+				double_sym = true;
 			}
 			else // Single column symbol
 			{
@@ -269,19 +270,19 @@ int encode(symbol* sym, char** column, size_t column_size, size_t column_pos)
 		}
 
 		// Check 1st string for a note
-		char1 = column[column_pos][5];
+		char1 = column[pos][5];
 		if(char1 >= '0' && char1 <= '9') // There's a position marker
 		{
 			*sym += 0x00020000; // Change G1 to 1
-			if(column_pos+1 < column_size) // Would a double column symbol overflow?
+			if(pos+1 < column_size) // Would a double column symbol overflow?
 			{
-				char2 = column[column_pos+1][5];
-				double_sym = true;
+				char2 = column[pos+1][5];
 			}
 			if(char2 >= '0' && char2 <= '9') // Double column symbol
 			{
 				*sym += ((uint32_t) 10*(char1-'0')+(char2-'0')) << 12; // Change H1 to position
 				if(DEBUG) printf("Got double symbol %u\n", (uint32_t) 10*(char1-'0')+(char2-'0'));
+				double_sym = true;
 			}
 			else // Single column symbol
 			{
@@ -290,9 +291,52 @@ int encode(symbol* sym, char** column, size_t column_size, size_t column_pos)
 			}
 		}
 
-		// Check duration marker
+		// Now we know if it's a single or double column symbol
+		if(double_sym) pos++; // Always check second column if it is double
+		if(DEBUG) printf("column_pos is %ld and we check pos %ld\n", column_pos, pos);
 
-		// Check effect/annotation
+		// Check duration marker
+		// 1 beat
+		if(column[pos][6] == '-' || column[pos][4] == '-' || column[pos][2] == '-') { *sym += 0x40000000; if(DEBUG) printf("1 beat\n"); }
+		// 1/2 beat
+		else if(column[pos][6] == '=' || column[pos][4] == '=' || column[pos][2] == '=') { *sym += 0x60000000; if(DEBUG) printf("1/2 beat\n"); }
+		// Everything else is 2 beats
+		else { *sym += 0x20000000; if(DEBUG) printf("2 beats\n"); }
+
+		// Check effect/slide/finger
+		if(DEBUG) printf("Switching on marker: %c\n", column[pos][0]);
+		switch(column[pos][0])
+		{
+			case '^':
+				*sym += 0x08000000;
+				break;
+			case 'h':
+				*sym += 0x01000000;
+				break;
+			case 'u':
+				*sym += 0x02000000;
+				break;
+			case 's':
+				*sym += 0x03000000;
+				break;
+			case '/':
+				*sym += 0x04000000;
+				break;
+			case '1':
+				*sym += 0x00100000;
+				break;
+			case '2':
+				*sym += 0x00200000;
+				break;
+			case '3':
+				*sym += 0x00300000;
+				break;
+			case '4':
+				*sym += 0x00400000;
+				break;
+			default:
+				break;
+		} 
 
 		// Check triplet
 
