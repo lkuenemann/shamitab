@@ -339,6 +339,7 @@ int encode(symbol* sym, char** column, size_t column_size, size_t column_pos)
 		} 
 
 		// Check triplet
+		if(column[pos][6] == '3') *sym += 0x10000000;
 
 		if(double_sym){ return 2; }
 		else{ return 1; }
