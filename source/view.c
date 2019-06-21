@@ -50,7 +50,7 @@ int view(char* filename)
 		// Decode symbol
 		if(DEBUG) printf("Read symbol: %08x\n", buffer[0]);
 		err = decode(ascii_sym, buffer[0]);
-		if(err) 	// TODO change error checking to check for something as err isn't used here anymore
+		if(err)
 		{
 			printf("Error: cannot decode symbol.\n");
 			return 1;
@@ -165,9 +165,9 @@ int decode(char* ascii_sym, symbol sym)
 					case 3:
 						duration_marker = '=';
 						break;
-					case 4:
+					/*case 4:
 						duration_marker = '≡'; // TODO That's not ASCII, may be unsafe...
-						break;
+						break;*/
 					default: // Display nothing (space)
 						duration_marker = ' ';
 						break;
@@ -294,9 +294,9 @@ int decode(char* ascii_sym, symbol sym)
 			case 3:
 				duration_marker = '=';
 				break;
-			case 4:
+			/*case 4:
 				duration_marker = '≡'; // TODO That's not ASCII, may be unsafe...
-				break;
+				break;*/
 			default: // Display nothing (space)
 				duration_marker = ' ';
 				break;
