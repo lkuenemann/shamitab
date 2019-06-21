@@ -12,7 +12,7 @@
 #define DEBUG 1
 
 // Types
-typedef int32_t symbol;	// Defining a 32 bits type for a 3mt symbol
+typedef uint32_t symbol;	// Defining an unsigned 32 bits type for a 3mt symbol
 
 // Constants
 extern const int SYM_SIZE;	// Size of a 3mt symbol in bytes
