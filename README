@@ -25,7 +25,6 @@ To display a list of all available commands:
 TODO:
 *****
 * Test for all durations display
-* Add maebachi display
 * Better slide display (can collide with other effects)
 * Better suberi display
 * Better effects/finger display (can collide together)

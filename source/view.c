@@ -333,7 +333,8 @@ int decode(char* ascii_sym, symbol sym)
 			// Place effect marker
 			tmp_ascii_sym[7*columns-7] = effect_marker;
 		}
-		// TODO mae/ushiro bachi representation
+		// Maebachi representation: put an m over the symbol
+		if(bachi) tmp_ascii_sym[7*columns-7] = 'm'; // TODO Change as it can override effect representation
 		// Place finger marker
 		if(finger>0 && finger<5) tmp_ascii_sym[7*columns-7] = finger + '0'; // TODO Change as it can override effect representation
 

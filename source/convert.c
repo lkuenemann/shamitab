@@ -303,7 +303,7 @@ int encode(symbol* sym, char** column, size_t column_size, size_t column_pos)
 		// Everything else is 2 beats
 		else { *sym += 0x20000000; if(DEBUG) printf("2 beats\n"); }
 
-		// Check effect/slide/finger
+		// Check effect/slide/finger/maebachi
 		if(DEBUG) printf("Switching on marker: %c\n", column[pos][0]);
 		switch(column[pos][0])
 		{
@@ -334,6 +334,8 @@ int encode(symbol* sym, char** column, size_t column_size, size_t column_pos)
 			case '4':
 				*sym += 0x00400000;
 				break;
+			case 'm':
+				*sym += 0x00800000;
 			default:
 				break;
 		} 
