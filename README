@@ -24,10 +24,12 @@ To display a list of all available commands:
 
 TODO:
 *****
-* Test for all durations display
+* Add test for all supported durations display
+* Add test for effects collision avoidance (need to define new way to display all effects)
 * Better slide display (can collide with other effects)
-* Better suberi display
-* Better effects/finger display (can collide together)
+* Better suberi display (can collide with other effects)
+* Better effects display (can collide with other effects)
+* Better finger display (can collide with other effects)
+* Better maebachi display (can collide with other effects)
 * Better triplets display (can collide with duration display on first string)
 * Interactive tab edition mode
-* Graphical display (no more ASCII!)
