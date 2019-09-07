@@ -25,10 +25,10 @@ To display a list of all available commands:
 TODO:
 *****
 * Test for all durations display
-* Test for mae bachi/ushiro bachi display
-* Interactive tab edition mode
+* Add maebachi display
 * Better slide display (can collide with other effects)
 * Better suberi display
 * Better effects/finger display (can collide together)
 * Better triplets display (can collide with duration display on first string)
+* Interactive tab edition mode
 * Graphical display (no more ASCII!)
