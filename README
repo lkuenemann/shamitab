@@ -24,6 +24,7 @@ To display a list of all available commands:
 
 TODO:
 *****
+* Add line jump support for the conversion module
 * Add test for all supported durations display
 * Add test for effects collision avoidance (need to define new way to display all effects)
 * Better slide display (can collide with other effects)
