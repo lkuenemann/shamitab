@@ -12,7 +12,7 @@
 #include <stdbool.h>
 
 
-int view(char* filename)
+int view(char* filename, int bars_per_line)
 {
 	// Variables
 	int err = 0;	// Error return variable
@@ -29,7 +29,6 @@ int view(char* filename)
 		line_tail[i] = line_head[i];
 		line_iter[i] = NULL;
 	}
-	int bars_per_line = 4; // TODO: Get this one from argument
 
 	if(DEBUG) printf("Opening file %s...\n", filename);
 

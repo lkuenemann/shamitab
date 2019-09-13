@@ -9,7 +9,7 @@
 
 #include "shamitab.h"
 
-int view(char* filename);
+int view(char* filename, int bars_per_line);
 
 int decode(char* ascii_sym, symbol sym);
 

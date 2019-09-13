@@ -18,15 +18,15 @@ const symbol MAGIC_SYM = 0x334d5421;	// 3mt file magic number
 
 void help()
 {
-		printf("Usage: shamitab [command] [files]\n\n"
+		printf("Usage: shamitab [command] [arguments]\n\n"
 			"Available commands:\n\n"
-			"  view [tab.3mt]"
+			"  view [tab.3mt] [bars per line]"
 			"			Displays specified tab in ASCII format.\n"
 			"  convert [ascii.txt] [tab.3mt]"
 			"		Converts ASCII tab into shamitab format.\n"
 			"\nExample:\n"
-			"  shamitab view ringo-bushi.3mt"
-			"		Displays the ringo-bushi.3mt tablature.\n"
+			"  shamitab view ringo-bushi.3mt 4"
+			"		Displays the ringo-bushi.3mt tablature with 4 bars per line.\n"
 			);
 	return;
 }
@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 	char* in_filename = NULL;
 	char* out_filename = NULL;
 	int err = 0;	// Error return variable
-
+	int bars_per_line = 4;	// Bars per line for tab display
 
 	// Check if right number of arguments recieved
 	if(argc <= nargs)
@@ -66,14 +66,20 @@ int main(int argc, char* argv[])
 	else if(!strcmp(command, "view") || !strcmp(command,"v"))
 	{
 		// Arguments check
-		if(argc != 3)
+		if(argc != 4)
 		{
-			printf("Error: expected 2 arguments but got %d.\n", argc-1);
+			printf("Error: expected 3 arguments but got %d.\n", argc-1);
 			return 1;
 		}
 		in_filename = argv[2];
+		if(atoi(argv[3]) <= 0)
+		{
+			printf("Error: %s is not a valid number of bars per line.\n", argv[3]);
+			return 1;
+		}
+		bars_per_line = atoi(argv[3]);
 		// Call viewing routine
-		err = view(in_filename);
+		err = view(in_filename, bars_per_line);
 		if(err) return 1;
 	}
 

@@ -13,7 +13,7 @@ make clean
 RUNNING:
 ********
 To view a tablature:
-./shamitab view [path-to-tab.3mt]
+./shamitab view [path-to-tab.3mt] [bars per line]
 
 To convert a text tablature to 3mt format:
 ./shamitab convert [path-to-tab.txt] [path-to-converted-tab.3mt]
