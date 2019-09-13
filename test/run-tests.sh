@@ -34,7 +34,7 @@ for tab in $TABLIST ; do
 	#Viewing test
 
 	#Call Shamitab on the 3mt tab
-	$SHAMITAB view $tab.3mt > $OUTPUT
+	$SHAMITAB view $tab.3mt 4 > $OUTPUT
 	TOTAL=$((TOTAL+1))
 
 	#Compare to example txt tab
@@ -60,7 +60,7 @@ for tab in $TABLIST ; do
 	#Call shamitab on the txt tab
 	$SHAMITAB convert $tab.txt tmp_intermediate
 	#Call Shamitab on the 3mt tab
-	$SHAMITAB view tmp_intermediate > $OUTPUT
+	$SHAMITAB view tmp_intermediate 4 > $OUTPUT
 	TOTAL=$((TOTAL+1))
 
 	#Compare to example txt tab
