@@ -22,12 +22,14 @@ int view(char* filename)
 	charlist* line_head[7];	// Table of 7 linked lists (lines) of characters
 	charlist* line_tail[7];	// Table of pointers to last element on above lists
 	charlist* line_iter[7];
+	charlist* bars_iter = NULL; // Iterator on the middle line for bars counting reference
 	for(int i=0; i<7; i++)
 	{
 		line_head[i] = NULL;
 		line_tail[i] = line_head[i];
 		line_iter[i] = NULL;
 	}
+	int bars_per_line = 4; // TODO: Get this one from argument
 
 	if(DEBUG) printf("Opening file %s...\n", filename);
 
@@ -78,16 +80,52 @@ int view(char* filename)
 		fread(buffer, SYM_SIZE, 1, file);
 	}
 
-	// Display the whole tab
+	// Initialize iterators on the head of each line
 	for(int i=0; i<7; i++)
 	{
 		line_iter[i] = line_head[i];
-		while(line_iter[i]->next != NULL)
+	}
+	bars_iter = line_head[3];
+
+	// Display the whole tab
+	while(bars_iter->next != NULL)
+	{
+		// Reset number of bars and characters counted
+		int bars_count = 0;
+		int chars_count = 0;
+		// Count of many characters to reach bars_per_line bars
+		while(bars_count <= bars_per_line && bars_iter->next != NULL)
 		{
-			printf("%c", line_iter[i]->c);
-			line_iter[i] = line_iter[i]->next;
+			chars_count++;
+			if(bars_iter->c == '|' && bars_iter->next != NULL && bars_iter->next->c != '|')
+			{
+				bars_count++;
+			}
+			// Don't move iterator if jumping to next line
+			if(bars_count != bars_per_line+1)
+			{
+				bars_iter = bars_iter->next;
+			}
 		}
-		printf("\n");
+		for(int i=0; i<7; i++)
+		{
+			int chars_iter = 0;
+			// Iterate on current line until we've reached the end or counted enough bars
+			while(chars_iter < chars_count && line_iter[i]->next != NULL)
+			{
+				// Print the character
+				printf("%c", line_iter[i]->c);
+				// Move iterator
+				chars_iter++;
+				// Don't move line iterator if jumping line
+				if(chars_iter != chars_count)
+				{
+					line_iter[i] = line_iter[i]->next;
+				}
+			}
+			// Skip to the next line
+			printf("\n");
+		}
 	}
 
 	// Cleaning up
@@ -165,9 +203,9 @@ int decode(char* ascii_sym, symbol sym)
 					case 3:
 						duration_marker = '=';
 						break;
-					/*case 4:
-						duration_marker = '≡'; // TODO That's not ASCII, may be unsafe...
-						break;*/
+						/*case 4:
+						  duration_marker = '≡'; // TODO That's not ASCII, may be unsafe...
+						  break;*/
 					default: // Display nothing (space)
 						duration_marker = ' ';
 						break;
@@ -175,27 +213,27 @@ int decode(char* ascii_sym, symbol sym)
 				// Place duration marker under the silence symbol (middle string)
 				ascii_sym[4] = duration_marker;
 				break;
-			// Bar
+				// Bar
 			case 0x01000000:
 				if(DEBUG) printf(">>Bar\n");
 				strcpy(ascii_sym, " ||||| ");
 				break;
-			// Double bar
+				// Double bar
 			case 0x02000000:
 				if(DEBUG) printf(">>Double bar\n");
 				strcpy(ascii_sym, " |||||  ||||| ");
 				break;
-			// Left repeat sign
+				// Left repeat sign
 			case 0x03000000:
 				if(DEBUG) printf(">>Left repeat sign\n");
 				strcpy(ascii_sym, " |||||  |||||  -.-.- ");
 				break;
-			// Right repeat sign
+				// Right repeat sign
 			case 0x04000000:
 				if(DEBUG) printf(">>Right repeat sign\n");
 				strcpy(ascii_sym, " -.-.-  |||||  ||||| ");
 				break;
-			// Default: undefined
+				// Default: undefined
 			default:
 				printf("Error: Undefined symbol.\n");
 				strcpy(ascii_sym, " ERROR ");
@@ -294,9 +332,9 @@ int decode(char* ascii_sym, symbol sym)
 			case 3:
 				duration_marker = '=';
 				break;
-			/*case 4:
-				duration_marker = '≡'; // TODO That's not ASCII, may be unsafe...
-				break;*/
+				/*case 4:
+				  duration_marker = '≡'; // TODO That's not ASCII, may be unsafe...
+				  break;*/
 			default: // Display nothing (space)
 				duration_marker = ' ';
 				break;
@@ -339,12 +377,12 @@ int decode(char* ascii_sym, symbol sym)
 		if(finger>0 && finger<5) tmp_ascii_sym[7*columns-7] = finger + '0'; // TODO Change as it can override effect representation
 
 		strcpy(ascii_sym, tmp_ascii_sym);
-		
+
 	}
 	free(tmp_ascii_sym);
 	// Append a tab "space" right after the symbol
 	strcat(ascii_sym, " - - - ");
 
- 	return 0;
+	return 0;
 }
 
