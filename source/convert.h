@@ -14,7 +14,7 @@
 
 int convert(char* in_filename, char* out_filename);
 
-char** parse(char** line, size_t* allocated_size, FILE* in_file, size_t* length_line, char** column);
+char** parse(FILE* in_file, char** column, int* total_length);
 
 int encode(symbol* sym, char** column, size_t column_size, size_t column_pos);
 

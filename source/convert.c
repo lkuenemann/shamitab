@@ -22,18 +22,10 @@ int convert(char* in_filename, char* out_filename)
 	FILE* out_file = NULL;
 	symbol* sym = NULL;
 	char** column = NULL;
-	char* line[7];
-	size_t length_line[7];
-	size_t allocated_size[7];
 	size_t column_size = 0;
 	size_t column_pos = 0;
-	for(int i=0; i<7; i++) 
-	{
-		line[i] = NULL;
-		length_line[i] = 0;
-		allocated_size[i] = 0;
-	}
-
+	int total_length = 0;
+	
 	if(DEBUG) printf("Converting %s to %s.\n", in_filename, out_filename);
 
 	// Opening files
@@ -49,16 +41,16 @@ int convert(char* in_filename, char* out_filename)
 		printf("Error: could not open file %s.\n", in_filename);
 		return 1;
 	}
-	if(DEBUG) printf("Files open!\n");
+	if(DEBUG) printf("File open!\n");
 	
 	// Parsing input ASCII file
-	column = parse(line, allocated_size, in_file, length_line, column);
+	column = parse(in_file, column, &total_length);
 	if(column == NULL)
 	{
 		printf("Error: could not parse file %s\n", in_filename);
 		return 1;
 	}
-	column_size = length_line[0]-1;
+	column_size = total_length;
 
 	// Initializing write
 	if(DEBUG) printf("Writing magic symbol\n");
@@ -104,51 +96,84 @@ int convert(char* in_filename, char* out_filename)
 }
 
 
-char** parse(char** line, size_t* allocated_size, FILE* in_file, size_t* length_line, char** column)
+char** parse(FILE* in_file, char** column, int* total_length)
 {
 	// Variables
-	size_t length = 0;
-
-	// Read 7 lines
-	for(int i=0; i<7; i++)
+	//size_t length = 0;
+	int lines_count = 0;
+	int line_iter = 0;
+	int pos_iter = 0;
+	char* line[1024];
+	size_t length_line[1024];
+	size_t allocated_size[1024];
+	for(int i=0; i<1024; i++)
 	{
-		length_line[i] = getline(&line[i], &allocated_size[i], in_file);
-		if(DEBUG) printf("Line read: %s\n", line[i]);
+		line[i] = NULL;
+		length_line[i] = 0;
+		allocated_size[i] = 0;
 	}
-	if(DEBUG) printf("Input file read!\n");
-	// Check lengths are equal
-	length = length_line[0];
-	for(int i=1; i<7; i++)
+
+	// Read all input file lines
+	while((length_line[lines_count] = getline(&line[lines_count], &allocated_size[lines_count], in_file)) != -1)
 	{
-		if(length_line[i] != length)
+		lines_count++;
+	}
+	if(DEBUG) printf("Read %d lines from input file!\n", lines_count);
+
+	// Check lengths are equal
+	for(int i=0; i<lines_count; i++)
+	{
+		// Lines are grouped by blocks of 7 lines
+		// Each line must be of length equal to that of previous multiple of 7
+		// i.e. length of line i=7j+k (k<7) must be equal to line 7j
+		if(length_line[i] != length_line[i-i%7])
 		{
 			printf("Error: is not a proper ASCII tab.\n");
 			return NULL;
 		}
 	}
-	if(DEBUG) printf("Lines of equal length: %ld\n", length);
+	if(DEBUG) printf("Lines of equal length\n");
+
+	// Count total length by adding up length of each 7th line
+	*total_length = length_line[0]-1;
+	for(int i=7; i<lines_count; i+=7)
+	{
+		// Last char on each line is end of line, so -1 to exclude it
+		// Also -2 to exclude redundant bar and spacing at the beginning of each new line
+		*total_length += length_line[i]-3;
+	}
+	if(DEBUG) printf("Total length of tab: %d columns\n", *total_length);
+
 	// Allocate array of columns of 7 characters
-	column = malloc((length-1)*sizeof(char*)); // Ignore last character (end of line)
-	for(int j=0; j<length-1; j++) // Skip last character (end of line)
+	column = malloc((*total_length)*sizeof(char*));
+	line_iter = 0;
+	pos_iter = 0;
+	for(int j=0; j<*total_length; j++)
 	{
 		// Allocate each column
 		column[j] = malloc(8*sizeof(char)); // 7 characters + end of string = 8 characters
 		// Fill the 7 characters
 		for(int i=0; i<7; i++)
 		{
-			column[j][i] = *(line[i]+j);
+			column[j][i] = *(line[line_iter+i]+pos_iter);
 		}
 		// Add end of string character
 		column[j][7] = '\0';
+		// Move iterators
+		pos_iter++;
+		if(pos_iter >= length_line[line_iter]-1)
+		{
+			pos_iter = 2; // Start iterating on new lines from position 2 to exclude redundant bar and spacing
+			line_iter += 7; // Increment by 7
+		}
 		if(DEBUG) printf("Column written is: %s\n", column[j]);
 	}
 
 	// Local clean-up
-	for(int i=0; i<7; i++)
+	for(int i=0; i<1024; i++)
 	{
 		free(line[i]); // Deallocate lines allocated by getline(), we're done using them
 		line[i] = NULL; // Prevent chaos
-		allocated_size[i] = 0; // Change allocated memory size to 0 accordingly
 	}
 
 	return column;
