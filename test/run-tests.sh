@@ -4,7 +4,7 @@ set -eu
 #How to call shamitab
 SHAMITAB='../shamitab'
 #List of all testing tabs (no file extension)
-TABLIST='all-effects all-fingers all-positions all-special triplets maebachi ringo-bushi-1 ringo-bushi-4 ringo-bushi-7 ringo-bushi-1to11'
+TABLIST='all-effects all-fingers all-positions all-special triplets maebachi ringo-bushi-1 ringo-bushi-4 ringo-bushi-7 ringo-bushi-1to11 ringo-bushi-full'
 #Temporary output for testing
 OUTPUT='tmp_out'
 DATE=`date '+%Y-%m-%d-%H-%M-%S'`

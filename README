@@ -24,6 +24,7 @@ To display a list of all available commands:
 
 TODO:
 *****
+* Modify ringo-bushi-full.3mt to add multiple effects at once (test result should have collision issue right now, not pass)
 * Add test for all supported durations display
 * Add test for effects collision avoidance (need to define new way to display all effects)
 * Better slide display (can collide with other effects)
