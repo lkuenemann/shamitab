@@ -202,9 +202,6 @@ int decode(char* ascii_sym, symbol sym)
 					case 3:
 						duration_marker = '=';
 						break;
-						/*case 4:
-						  duration_marker = '≡'; // TODO That's not ASCII, may be unsafe...
-						  break;*/
 					default: // Display nothing (space)
 						duration_marker = ' ';
 						break;
@@ -331,9 +328,6 @@ int decode(char* ascii_sym, symbol sym)
 			case 3:
 				duration_marker = '=';
 				break;
-				/*case 4:
-				  duration_marker = '≡'; // TODO That's not ASCII, may be unsafe...
-				  break;*/
 			default: // Display nothing (space)
 				duration_marker = ' ';
 				break;
@@ -344,6 +338,10 @@ int decode(char* ascii_sym, symbol sym)
 		else tmp_ascii_sym[columns*7-5] = duration_marker;
 		// Place triplet marker
 		if(triplet) tmp_ascii_sym[7*columns-1] = '3'; // TODO Change as it can mess with duration representation
+		// Maebachi representation: put an m over the symbol
+		if(bachi) tmp_ascii_sym[7*columns-7] = 'm'; // TODO Change as it can override effect representation
+		// Place finger marker
+		if(finger>0 && finger<5) tmp_ascii_sym[7*columns-7] = finger + '0'; // TODO Change as it can override effect representation
 		// Place slide marker
 		if(slide) tmp_ascii_sym[7*columns-7] = '^';
 		if(effect>0 && effect<5)
@@ -370,11 +368,6 @@ int decode(char* ascii_sym, symbol sym)
 			// Place effect marker
 			tmp_ascii_sym[7*columns-7] = effect_marker;
 		}
-		// Maebachi representation: put an m over the symbol
-		if(bachi) tmp_ascii_sym[7*columns-7] = 'm'; // TODO Change as it can override effect representation
-		// Place finger marker
-		if(finger>0 && finger<5) tmp_ascii_sym[7*columns-7] = finger + '0'; // TODO Change as it can override effect representation
-
 		strcpy(ascii_sym, tmp_ascii_sym);
 
 	}
