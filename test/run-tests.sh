@@ -7,6 +7,7 @@ SHAMITAB='../shamitab'
 TABLIST='all-effects all-fingers all-positions all-special triplets maebachi ringo-bushi-1 ringo-bushi-4 ringo-bushi-7 ringo-bushi-1to11 ringo-bushi-full'
 #Temporary output for testing
 OUTPUT='tmp_out'
+TMP_TAB='tmp_intermediate'
 DATE=`date '+%Y-%m-%d-%H-%M-%S'`
 echo $DATE
 OUT_FILE_NAME='TEST_SUMMARY'
@@ -45,7 +46,7 @@ for tab in $TABLIST ; do
 
 	#Conversion test
 
-	#Call Shamitab on the txt tab
+	#Call shamitab on the txt tab
 	$SHAMITAB convert $tab.txt $OUTPUT
 	TOTAL=$((TOTAL+1))
 
@@ -58,9 +59,9 @@ for tab in $TABLIST ; do
 	#Full-circle (conversion then view) test
 
 	#Call shamitab on the txt tab
-	$SHAMITAB convert $tab.txt tmp_intermediate
-	#Call Shamitab on the 3mt tab
-	$SHAMITAB view tmp_intermediate 4 > $OUTPUT
+	$SHAMITAB convert $tab.txt $TMP_TAB
+	#Call shamitab on the 3mt tab
+	$SHAMITAB view $TMP_TAB 4 > $OUTPUT
 	TOTAL=$((TOTAL+1))
 
 	#Compare to example txt tab
@@ -69,8 +70,22 @@ for tab in $TABLIST ; do
 		else echo "FAIL	convert+view $tab" >> $SUMMARY
 	fi
 
+	#Reversed full-circle (view then conversion) test
+
+	#Call shamitab on the 3mt tab
+	$SHAMITAB view $tab.3mt 4 > $TMP_TAB
+	#Call shamitab on the txt tab
+	$SHAMITAB convert $TMP_TAB $OUTPUT
+	TOTAL=$((TOTAL+1))
+
+	#Compare to example txt tab
+	if diff --brief $OUTPUT $tab.3mt > /dev/null;
+		then echo "PASS	view+convert $tab" >> $SUMMARY; PASS=$((PASS+1))
+		else echo "FAIL	view+convert $tab" >> $SUMMARY
+	fi
+
 	#Clean-up
-	rm tmp_intermediate
+	rm $TMP_TAB
 	rm $OUTPUT
 
 done
