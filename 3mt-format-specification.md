@@ -1,13 +1,10 @@
-***************************************
-* Shamitab "3mt" format specification *
-***************************************
+# Shamitab "3mt" format specification
 
-Luc Kuenemann
-kuenemann.luc@protonmail.com
+Luc Kuenemann (kuenemann.luc@protonmail.com)
 
 
-Introduction:
-*************
+## Introduction
+
 The shamitab format is an attempt to define a shamisen tablature encoding
 format. The tablature is encoded in terms of "symbols", where one symbol is a
 single element (bar, silence, single note, chord, etc.) of the tablature.
@@ -37,7 +34,7 @@ defined as follows, with the 32 bits broken down into 9 components:
 
 G and H are repeated 3 times, one for each string of the shamisen. They are, in
 order, G1 and H1 for the 1st string (ichi no ito, the lowest string), G2 and H2
-for the 2nd strng (ni no ito, the middle string), and G3 and H3 for the 3rd
+for the 2nd string (ni no ito, the middle string), and G3 and H3 for the 3rd
 string (san no ito, the highest string).
 
 Each G indicates that a note is played on its associated string. A single G
@@ -46,8 +43,8 @@ chord, and no G being positive would mean no note is played. This latter case is
 used to encode special symbols.
 
 
-Special symbols:
-****************
+## Special symbols
+
 Symbols are special symbols when G1, G2, and G3 all together hold the value 0.
 
 The defined special symbols are:
@@ -58,48 +55,50 @@ The defined special symbols are:
 * Right repeat (end of a repeat section)
 
 Special symbols are coded by D in the following manner:
-+---------+--------------+
-| D value | Symbol       |
-+---------+--------------+
-| 000     | Silence      |
-| 001     | Bar          |
-| 010     | Double bar   |
-| 011     | Left repeat  |
-| 100     | Right repeat |
-| Other   | Undefined    |
-+---------+--------------+
+
+D value	| Symbol
+-------	| ------
+000		| Silence
+001		| Bar
+010		| Double bar
+011		| Left repeat
+100		| Right repeat
+Other	| Undefined
 
 By convention, all other bits should be set to 0 with the exception of A for a
 silence, where it should be encoding its duration using the definition given in
 "Normal symbols" section, "A: duration" sub-section.
 
 
-Normal symbols:
-***************
+## Normal symbols
+
 Symbols are normal when at least one of G1, G2, or G3 holds the value 1.
 
-	A: duration
-A encodes the duration of a note or chord. It is defined as follows:
-+---------+-------------------+
-| A value | Duration in beats |
-+---------+-------------------+
-| 000     | 4                 |
-| 001     | 2                 |
-| 010     | 1                 |
-| 011     | 1/2               |
-| 100     | 1/4               |
-| 101     | 1/8               |
-| 110     | 1/16              |
-| 111     | 1/32              |
-+---------+-------------------+
+### A: Duration
 
-	B: triplet
+A encodes the duration of a note or chord. It is defined as follows:
+
+A value | Duration in beats
+------- | -----------------
+000     | 4
+001     | 2
+010     | 1
+011     | 1/2
+100     | 1/4
+101     | 1/8
+110     | 1/16
+111     | 1/32
+
+### B: Triplet
+
 A note is part of a triplet when B is 1. The note is not otherwise.
 
-	C: slide
+### C: Slide
+
 A note is part of a slide when C is 1. The note is not otherwise.
 
-	D: effect
+### D: Effect
+
 D encodes the type of effect the note (or chord) is played with. 4 effects are
 defined:
 * Hajiki (pull-off)
@@ -108,36 +107,37 @@ defined:
 * Suberi (sliding the bachi onto the string from the lower one)
 
 The encoding is defined as:
-+---------+-----------+
-| D value | Effect    |
-+---------+-----------+
-| 000     | No effect |
-| 001     | Hajiki    |
-| 010     | Uchi      |
-| 011     | Sukui     |
-| 100     | Suberi    |
-| Other   | Undefined |
-+---------+-----------+
 
-	E: mae bachi
+D value | Effect
+------- | ------
+000     | No effect
+001     | Hajiki
+010     | Uchi
+011     | Sukui
+100     | Suberi
+Other   | Undefined
+
+### E: Mae bachi
+
 A note is played in mae bachi when E is 1. Otherwise, the note is played in
 ushiro bachi (assumed as the normal play style here).
 
-	F: finger
+### F: Finger
+
 Encodes the indication of which finger to use to play the note. Encoding is
 defined as:
-+---------+--------------+---------------+
-| F value | Usual marker | Finger        |
-+---------+--------------+---------------+
-| 000     | None         | No indication |
-| 001     | I            | Index finger  |
-| 010     | II           | Middle finger |
-| 011     | III          | Ring finger   |
-| 100     | IV           | Pinky         |
-| Other   | Undefined    | Undefined     |
-+---------+--------------+---------------+
 
-	G: note played
+F value | Usual marker | Finger
+------- | ------------ | ------
+000     | None         | No indication
+001     | I            | Index finger
+010     | II           | Middle finger
+011     | III          | Ring finger
+100     | IV           | Pinky
+Other   | Undefined    | Undefined
+
+### G: Note played
+
 When G is 1, a note is played on the corresponding string, and its position on
 the sao (neck) is encoded by the associated H that follows. From MSB (most
 significant bit) to LSB (least significant bit), we have in order: G1, H1, G2,
@@ -145,7 +145,8 @@ H2, G3, then H3. G1 encodes a note for the 1st string (ichi no ito, lowest), G2
 for the 2nd string (ni no ito, middle), and G3 for the 3rd string (san no ito,
 highest).
 
-	H: position of the note
+### H: Position of the note
+
 The position of the note is directly coded in standard binary from 00000
 (position 0, open string) to 11111 (position 31 on the neck), despite a shamisen
 neck usually going only up to around 20. H1 encodes the position on the 1st
@@ -154,26 +155,26 @@ above). By convention, when G is 0 (no note played on associated string),
 corresponding H should be set to 0.
 
 
-File markers:
-*************
+## File markers
+
 Shamitab files all begin with the magic number 0x334d5421 (ASCII for 3MT!).
 Shamitab files are all ending with an end of file (EOF) marker 0xffffffff (all
 32 bits set to 1).
 
 
-Example of 3mt file:
-********************
+## Example of 3mt file
+
 Let us consider the following ASCII tab:
 
-    m   /   
-|---4---4-||
-|   -   - ||
-|-----0---||
-|     -   ||
-|-0-------||
-  -         
+	    m   /   
+	|---4---4-||
+	|   -   - ||
+	|-----0---||
+	|     -   ||
+	|-0-------||
+	  -         
 
-As stated above, a shamitab (3mt) file begins with the magic number 0x334d5421.
+As stated above, a shamitab (3mt) file begins with the magic number `0x334d5421`.
 Then, symbols are inserted one after another until the end of the tab.
 
 As seen here, a tablature usually starts by a bar (considered as a "special
@@ -183,6 +184,7 @@ encoded by section D of the symbol, set to 1 (bar):
 
 	0000 0001 0000 0000 0000 0000 0000 0000
 	      DDD
+          
 	Hexadecimal: 0x 01 00 00 00
 
 Following the bar in a "normal symbol", where a 0 (open string) is played on the
@@ -236,25 +238,25 @@ for a double bar:
 
 	0000 0010 0000 0000 0000 0000 0000 0000
 	      DDD
+          
 	Hexadecimal: 0x 02 00 00 00
 
 Once all symbols have been added the the file, one after another in the correct
-order, the tab file ends with the end of file marker 0xffffffff.
+order, the tab file ends with the end of file marker `0xffffffff`.
 
 In summary, our 3mt file should then be:
 
-	Hexadecimal	Description
-	0x334d5421	magic number
-	0x01000000	bar
-	0x40020000 	open 1st string, 1 beat
-	0x40800020	4 on 3rd string, 1 beat, maebachi
-	0x40000800	open 2nd string, 1 beat
-	0x44000024	4 on 3rd string, 1 beat, suberi
-	0x02000000	double bar
-	0xffffffff	end of file
+	0x334d5421	# magic number
+	0x01000000	# bar
+	0x40020000 	# open 1st string, 1 beat
+	0x40800020	# 4 on 3rd string, 1 beat, maebachi
+	0x40000800	# open 2nd string, 1 beat
+	0x44000024	# 4 on 3rd string, 1 beat, suberi
+	0x02000000	# double bar
+	0xffffffff	# end of file
 
 
-Remarks:
-********
+## Remarks
+
 If you have any question, correction, or suggestion regarding this document or
 the shamitab format, please feel free to send your inquiries to the author.
