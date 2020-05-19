@@ -47,3 +47,4 @@ To display a list of all available commands:
 * Better maebachi display (can collide with other effects)
 * Better triplets display (can collide with duration display on first string)
 * Interactive tab edition mode
+* Tuning display (add note letter in front of the string at the start of the tab/each line of the tab)
